@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
 BROWSER = Chrome()
+BROWSER.get("https://instagram.com")
 
 
 def find_element(xpath, waittime=10, all=False):
@@ -23,43 +24,49 @@ def click_on(xpath):
     element = find_element(xpath)
     if element:
         element.click()
+        return True
     else:
         print("Could not find element to click on.")
+        return False
 
 
 def write_on(xpath, text):
     element = find_element(xpath)
     if element:
         element.send_keys(text)
+        return True
     else:
         print("Could not find element to write on.")
+        return False
 
 
-BROWSER.get("https://instagram.com")
+class Operation():
+    def __init__(self, xpath, text=None):
+        self.xpath = xpath
+        self.text = text if text else ""
+        self.action = "write" if text else "click"
+
+    def perform(self):
+        result = False
+        if self.action.lower() not in ["click", "write"]:
+            print("Unknown action associated with the operation.")
+            result = False
+        elif self.action.lower() == "click":
+            result = click_on(self.xpath)
+        else:
+            result = write_on(self.xpath, self.text)
+        return result
+
 
 OPERATIONS = [
-    {
-        "xpath": "//button[contains(text(),'Log in with Facebook')]",
-        "action": "click",
-        "text": "",
-    },
-    {
-        "xpath": "//input[@name='email']",
-        "action": "write",
-        "text": "username@email.com",
-    },
-    {
-        "xpath": "//input[@name='pass']",
-        "action": "write",
-        "text": "passwordsaresecrets",
-    },
-    {"xpath": "//button[@value='Log In']", "action": "click", "text": ""},
-    {"xpath": "//button[contains(text(),'Not Now')]", "action": "click", "text": ""},
+    Operation("//span[contains(text(),'Log in with Facebook')]"),
+    Operation("//input[@name='email']", "ggwellplayed@yoyomail.com"),
+    Operation("//input[@name='pass']", "passwordsaresecrets"),
+    Operation("//button[@id='loginbutton']"),
+    Operation("//button[contains(text(),'Not Now')]"),
 ]
 
-for operation in OPERATIONS:
-    if operation["action"].lower() == "write":
-        write_on(operation["xpath"], operation["text"])
-    elif operation["action"].lower() == "click":
-        click_on(operation["xpath"])
+for op in OPERATIONS:
+    if not op.perform():
+        break
 
