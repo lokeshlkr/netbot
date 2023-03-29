@@ -74,7 +74,7 @@ class Operation():
         elif self.action.lower() == "read":
             result = read_text(self.xpath)
             # while(len(self.retry_text)>0 and self.retry_text in result):
-            #     sleep(200)
+            #     sleep(0.2)
             #     result = read_text(self.xpath)
             # print(result)
         else:
